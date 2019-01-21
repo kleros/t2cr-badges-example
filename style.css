@@ -1,8 +1,9 @@
-html,
-body {
+html {
   height: 100%;
 }
-
+body {
+  min-height: 100%;
+}
 body {
   display: -ms-flexbox;
   display: -webkit-box;
@@ -47,8 +48,15 @@ body {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
-code {
+.body {
+  flex-direction: column;
+}
+
+pre {
+  visibility: hidden;
   display: block;
-  white-space: pre-wrap;
   text-align: start;
+  max-width: 700px;
+  background-color: lightgray;
+  padding: 14px;
 }

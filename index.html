@@ -8,26 +8,20 @@
     <meta name="author" content="">
 
     <title>T²CR and Badges</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+        crossorigin="anonymous">
     <link href="style.css" rel="stylesheet">
 </head>
 
-<body class="text-center">
-    <form class="form-fetch-token">
+<body class="text-center body">
+    <form class="form-fetch-tokens">
         <h1 class="h3 mb-3 font-weight-normal">Fetch Tokens With Badges</h1>
         <label for="inputAddress" class="sr-only">Token Address</label>
-        <input type="text" id="inputAddress" class="form-control" placeholder="Token address" autofocus>
-        <hr />
-        <button class="btn btn-primary btn-block">Fetch Submissions For Address</button>
-        <button class="btn btn-primary btn-block">Fetch All</button>
-        <code>
-{
-    "asfdas": "asdfasd",
-    "asfdas": "asdfasd"
-}
-        </code>
-
+        <button class="btn btn-primary btn-block" onClick="fetchAllBadges   ()" type="button">Fetch All</button>
+        <br />
     </form>
+    <pre id="data-display" />
+    <script src="./index.js"></script>
 </body>
 
 </html>
