@@ -61,7 +61,8 @@ function fetchTokenData(tokenID, addr) {
     t2cr.getTokenInfo(tokenID, (err, data) => {
         if (err) throw err
         tokenData[addr] = {
-            ...[tokenID] = data
+            ...tokenData[addr],
+            [tokenID]: data
         }
 
         const output = document.getElementById('data-display')
