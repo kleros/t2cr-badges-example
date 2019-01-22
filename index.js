@@ -26,8 +26,10 @@ async function fetchAllBadges () {
   ))[0]
     .filter(address => address !== '0x0000000000000000000000000000000000000000')
 
+  // Store addresses in return object.
   addresses.forEach(address => { tokensData[address] = {} })
 
+  // Fetch token IDs
   const tokenIDPromises = addresses.map(address => promisify(cb =>
     t2cr.queryTokens(
       0, // Whether to start/end the query from/at some token.
@@ -47,7 +49,6 @@ async function fetchAllBadges () {
       cb)
   )
   )
-
   const addressIDArr = await Promise.all(tokenIDPromises)
   const tokenIDs = []
   addressIDArr.forEach((addrs, i) => {
@@ -58,6 +59,7 @@ async function fetchAllBadges () {
       })
   })
 
+  // Finally, fetch token information.
   const tokenInfoPromises = tokenIDs.map(tokenID => promisify(cb => t2cr.getTokenInfo(tokenID, cb)))
   const tokenInfos = await Promise.all(tokenInfoPromises)
   tokenIDs.forEach((tokenID, i) => {
@@ -71,6 +73,7 @@ async function fetchAllBadges () {
     tokensData[tokenInfo.addr][tokenID] = tokenInfo
   })
 
+  // Display data.
   const output = document.getElementById('data-display')
   output.innerHTML = JSON.stringify(tokensData, undefined, 2)
   output.style.visibility = 'visible'
@@ -79,11 +82,10 @@ async function fetchAllBadges () {
 const promisify = (inner) =>
   new Promise((resolve, reject) =>
     inner((err, res) => {
-      if (err) {
+      if (err)
         reject(err)
-      } else {
+      else
         resolve(res)
-      }
     })
   )
 
