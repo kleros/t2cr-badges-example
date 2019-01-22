@@ -3,7 +3,6 @@ const { web3 } = window
 const t2cr = web3.eth.contract(t2crABI()).at('0x7a2e4142f573994f76ffe9d8236ba141beed2810')
 const badgeContract = web3.eth.contract(badgeContractABI()).at('0x1f28f15360c4ebbec6abf90ae57fabe7423d040c')
 
-
 async function fetchAllBadges() {
     // Return all token addresses that have the badge.
     const tokensData = {}
@@ -25,9 +24,9 @@ async function fetchAllBadges() {
             cb
         )
     ))[0]
-        .filter(address => address !== '0x0000000000000000000000000000000000000000')
+    .filter(address => address !== '0x0000000000000000000000000000000000000000')
 
-    addresses.forEach(address => {tokensData[address] = {}})
+    addresses.forEach(address => { tokensData[address] = {} })
 
     const tokenIDPromises = addresses.map(address => promisify(cb =>
         t2cr.queryTokens(
@@ -51,70 +50,30 @@ async function fetchAllBadges() {
 
     const addressIDArr = await Promise.all(tokenIDPromises)
     const tokenIDs = []
-    addressIDArr.forEach((addrs, index) => {
+    addressIDArr.forEach((addrs, i) => {
         addrs[0].filter(tokenID => tokenID !== '0x0000000000000000000000000000000000000000000000000000000000000000')
             .forEach(tokenID => {
-                tokensData[Object.keys(tokensData)[index]][tokenID] = {}
+                tokensData[Object.keys(tokensData)[i]][tokenID] = {}
                 tokenIDs.push(tokenID)
             })
     })
 
-    const tokenInfoPromises = promisify(cb => t2cr.getTokenInfo(tokenID, cb))
-    Object.keys(tokensData).forEach(address => {
-        Object.keys(tokensData[address]).forEach(async tokenID => {
-            const tokenData = await promisify(cb =>
-                t2cr.getTokenInfo(tokenID, cb)
-            )
-            tokensData[address][tokenID] = tokenData
-        })
+    const tokenInfoPromises = tokenIDs.map(tokenID => promisify(cb => t2cr.getTokenInfo(tokenID, cb)))
+    const tokenInfos = await Promise.all(tokenInfoPromises)
+    tokenIDs.forEach((tokenID, i) => {
+        const tokenInfo = {
+            name: tokenInfos[i][0],
+            ticker: tokenInfos[i][1],
+            addr: tokenInfos[i][2],
+            symbolMultihash: tokenInfos[i][3],
+            networkID: tokenInfos[i][4]
+        }
+        tokensData[tokenInfo.addr][tokenID] = tokenInfo
     })
 
     const output = document.getElementById('data-display')
     output.innerHTML = JSON.stringify(tokensData, undefined, 2)
     output.style.visibility = 'visible'
-}
-
-function fetchTokenIDs(addresses) {
-    for (let addr of addresses) {
-        // Return token information for every submission of an address
-        t2cr.queryTokens(
-            0,         // Whether to start/end the query from/at some token.
-            10,        // Number of items to return at once.
-            [
-                false, // Do not include absent tokens.
-                true,  // Include registered tokens.
-                false, // Do not include tokens with registration requests.
-                true,  // Include tokens with clearing requests.
-                false, // Do not include tokens with challenged registration requests.
-                true,  // Include tokens with challenged clearing requests.
-                false, // Include token if caller is the author of a pending request.
-                false  // Include token if caller is the challenger of a pending request.
-            ],
-            true,      // Return oldest first.
-            addr,      // The token address.'
-            (err, data) => {
-                if (err) throw err
-                const tokenIDs = data[0].filter(tokenID => tokenID != '0x0000000000000000000000000000000000000000000000000000000000000000')
-                for (let tokenID of tokenIDs)
-                    fetchTokenData(tokenID, addr)
-            }
-        )
-    }
-}
-
-function fetchTokenData(tokenID, addr) {
-    t2cr.getTokenInfo(tokenID, (err, data) => {
-        if (err) throw err
-
-        // Add information to the tokenData object.
-        tokenData[addr] = {
-            ...tokenData[addr],
-            [tokenID]: data
-        }
-        const output = document.getElementById('data-display')
-        output.innerHTML = JSON.stringify(tokenData, undefined, 2)
-        output.style.visibility = 'visible'
-    })
 }
 
 const promisify = (inner) =>
