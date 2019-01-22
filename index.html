@@ -14,13 +14,20 @@
 </head>
 
 <body class="text-center body">
-    <form class="form-fetch-tokens">
-        <h1 class="h3 mb-3 font-weight-normal">Fetch Tokens With Badges</h1>
-        <label for="inputAddress" class="sr-only">Token Address</label>
-        <button class="btn btn-primary btn-block" onClick="fetchAllBadges()" type="button">Fetch All</button>
-        <br />
-    </form>
-    <pre id="data-display" />
+    <div id="waiting-metamask">
+        <h1>Waiting Metamask</h1>
+        <small><h5>Please make sure you have metamask installed and set to the Kovan testnet.</h5></small>
+    </div>
+    <div id="metamask-loaded">
+        <form class="form-fetch-tokens">
+            <h1 class="h3 mb-3 font-weight-normal">Fetch Tokens With Badges</h1>
+            <label for="inputAddress" class="sr-only">Token Address</label>
+            <button class="btn btn-primary btn-block" onClick="fetchAllBadges()" type="button">Fetch All</button>
+            <br />
+        </form>
+        <pre id="data-display"></pre>
+        <div id="symbols"></div>
+    </div>
     <script src="./index.js"></script>
 </body>
 

@@ -25,29 +25,7 @@ body {
   padding: 15px;
   margin: 0 auto;
 }
-.form-fetch-tokens .checkbox {
-  font-weight: 400;
-}
-.form-fetch-tokens .form-control {
-  position: relative;
-  box-sizing: border-box;
-  height: auto;
-  padding: 10px;
-  font-size: 16px;
-}
-.form-fetch-tokens .form-control:focus {
-  z-index: 2;
-}
-.form-fetch-tokens input[type="email"] {
-  margin-bottom: -1px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-}
-.form-fetch-tokens input[type="password"] {
-  margin-bottom: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
+
 .body {
   flex-direction: column;
 }
@@ -59,4 +37,13 @@ pre {
   max-width: 700px;
   background-color: lightgray;
   padding: 14px;
+}
+
+.symbol {
+  max-width: 100px;
+  margin: 10px;
+}
+
+#metamask-loaded{
+  visibility: hidden;
 }

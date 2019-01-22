@@ -3,6 +3,13 @@ const { web3 } = window
 const t2cr = web3.eth.contract(t2crABI()).at('0x7a2e4142f573994f76ffe9d8236ba141beed2810')
 const badgeContract = web3.eth.contract(badgeContractABI()).at('0x1f28f15360c4ebbec6abf90ae57fabe7423d040c')
 
+window.addEventListener('load', function() {
+  if (typeof web3 !== 'undefined' && web3.version.network === '42') {
+      document.getElementById('metamask-loaded').style.visibility = 'visible'
+      document.getElementById('waiting-metamask').style.visibility = 'hidden'
+  }
+})
+
 async function fetchAllBadges () {
   // Return all token addresses that have the badge.
   const tokensData = {}
@@ -62,6 +69,7 @@ async function fetchAllBadges () {
   // Finally, fetch token information.
   const tokenInfoPromises = tokenIDs.map(tokenID => promisify(cb => t2cr.getTokenInfo(tokenID, cb)))
   const tokenInfos = await Promise.all(tokenInfoPromises)
+  const symbolMultihashes = []
   tokenIDs.forEach((tokenID, i) => {
     const tokenInfo = {
       name: tokenInfos[i][0],
@@ -71,12 +79,27 @@ async function fetchAllBadges () {
       networkID: tokenInfos[i][4]
     }
     tokensData[tokenInfo.addr][tokenID] = tokenInfo
+    symbolMultihashes.push(tokenInfo.symbolMultihash)
   })
 
   // Display data.
-  const output = document.getElementById('data-display')
-  output.innerHTML = JSON.stringify(tokensData, undefined, 2)
-  output.style.visibility = 'visible'
+  const data = document.getElementById('data-display')
+  data.innerHTML = JSON.stringify(tokensData, undefined, 2)
+  data.style.visibility = 'visible'
+
+  // Set token images
+  const tokenSymbols = document.getElementById('symbols')
+  while (tokenSymbols.firstChild)
+    tokenSymbols.removeChild(tokenSymbols.firstChild)
+
+  symbolMultihashes.forEach(symbolMultihash => {
+    const img = document.createElement('img')
+    img.src = `https://staging-cfs.s3.us-east-2.amazonaws.com/${symbolMultihash}`
+    img.className = 'img-thumbnail symbol'
+    img.alt = 'token-symbol'
+    tokenSymbols.appendChild(img)
+  })
+
 }
 
 const promisify = (inner) =>

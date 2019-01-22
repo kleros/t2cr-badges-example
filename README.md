@@ -1,4 +1,4 @@
-# Tokens² Curated List & Badges
+# Token² Curated Registry & Badges
 
 This demo demonstrates how to fetch all tokens with badges using only Metamask.
 Please run `yarn` followed by `yarn start`. The html must be served as Metamask won't interact with `file://`.
@@ -82,7 +82,7 @@ const addresses = (await promisify(cb =>
         false // Include token if caller is the challenger of a pending request.
       ],
       true, // Return oldest first.
-      address, // The token address.'
+      address, // The token address.
       cb)
   )
   )
@@ -113,10 +113,15 @@ tokenIDs.forEach((tokenID, i) => {
   tokensData[tokenInfo.addr][tokenID] = tokenInfo
 })
 ```
+## Symbol Multihash and Token Image.
 
-## T²CR Contract.
+The returned data includes the field `symbolMultihash`. This is value is a commitment to the image with the symbol of a token (more information below). With it, the token symbol can be fetched from an off-chain storage. Example.:
 
-### On Token IDs
+`https://staging-cfs.s3.us-east-2.amazonaws.com/BcczM5HCLj24wSWU6tDUpnVrbrxJNj7dwdjnUkaRpLXDFztUMjuMRfESGgYfW5guE3yXYAP71awL39LmSixrSMYgig`
+
+
+
+## Computing a token's ID
 
 The Token² Curated List implements [Permission Interface](https://github.com/kleros/kleros-interaction/blob/master/contracts/standard/permission/PermissionInterface.sol). This means anyone can check if a token is on the list by calling `isPermitted(bytes32 _value)` where `_value` is the `keccac256` hash of the token's [tighly packed](https://solidity.readthedocs.io/en/develop/abi-spec.html#non-standard-packed-mode) data:
 
