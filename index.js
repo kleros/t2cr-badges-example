@@ -1,14 +1,14 @@
 // Setup contracts.
 const { web3 } = window
-const t2cr = web3.eth.contract(t2crABI()).at('0x6c09d067bc434a4c9d2689e5ae58bed4cfb5711c')
-const badgeContract = web3.eth.contract(badgeContractABI()).at('0x3122520ba9fcc100930e399a5ae021dd281ca949')
+const t2cr = web3.eth.contract(t2crABI()).at('0x7a2e4142f573994f76ffe9d8236ba141beed2810')
+const badgeContract = web3.eth.contract(badgeContractABI()).at('0x1f28f15360c4ebbec6abf90ae57fabe7423d040c')
 
 const tokenData = {}
 
 function fetchAllBadges() {
     // Return all token addresses that have the badge.
     badgeContract.queryAddresses(
-        0,         // Whether to start/end the query from/at some token.
+        0,         // A token address to start/end the query from. Set to zero means unused.
         10,        // Number of items to return at once.
         [
             false, // Do not include absent tokens.
@@ -60,11 +60,12 @@ function fetchTokenIDs(addresses) {
 function fetchTokenData(tokenID, addr) {
     t2cr.getTokenInfo(tokenID, (err, data) => {
         if (err) throw err
+
+        // Add information to the tokenData object.
         tokenData[addr] = {
             ...tokenData[addr],
             [tokenID]: data
         }
-
         const output = document.getElementById('data-display')
         output.innerHTML = JSON.stringify(tokenData, undefined, 2)
         output.style.visibility = 'visible'
@@ -446,13 +447,18 @@ function t2crABI() {
                 },
                 {
                     "indexed": true,
+                    "name": "_contributor",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
                     "name": "_request",
                     "type": "uint256"
                 },
                 {
-                    "indexed": true,
-                    "name": "_contributor",
-                    "type": "address"
+                    "indexed": false,
+                    "name": "_round",
+                    "type": "uint256"
                 },
                 {
                     "indexed": false,
@@ -622,6 +628,10 @@ function t2crABI() {
                 },
                 {
                     "name": "_request",
+                    "type": "uint256"
+                },
+                {
+                    "name": "_round",
                     "type": "uint256"
                 }
             ],
@@ -876,20 +886,12 @@ function t2crABI() {
                     "type": "uint256"
                 },
                 {
-                    "name": "balance",
-                    "type": "uint256"
-                },
-                {
                     "name": "resolved",
                     "type": "bool"
                 },
                 {
                     "name": "parties",
                     "type": "address[3]"
-                },
-                {
-                    "name": "totalContributed",
-                    "type": "uint256[3]"
                 },
                 {
                     "name": "numberOfRounds",
@@ -933,6 +935,14 @@ function t2crABI() {
                 {
                     "name": "requiredForSide",
                     "type": "uint256[3]"
+                },
+                {
+                    "name": "totalContributed",
+                    "type": "uint256[3]"
+                },
+                {
+                    "name": "feeRewards",
+                    "type": "uint256"
                 }
             ],
             "payable": false,
@@ -948,6 +958,10 @@ function t2crABI() {
                 },
                 {
                     "name": "_request",
+                    "type": "uint256"
+                },
+                {
+                    "name": "_round",
                     "type": "uint256"
                 },
                 {
@@ -1050,7 +1064,6 @@ function t2crABI() {
             "type": "function"
         }
     ]
-
 }
 
 function badgeContractABI() {
@@ -1385,13 +1398,18 @@ function badgeContractABI() {
                 },
                 {
                     "indexed": true,
+                    "name": "_contributor",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
                     "name": "_request",
                     "type": "uint256"
                 },
                 {
-                    "indexed": true,
-                    "name": "_contributor",
-                    "type": "address"
+                    "indexed": false,
+                    "name": "_round",
+                    "type": "uint256"
                 },
                 {
                     "indexed": false,
@@ -1545,6 +1563,10 @@ function badgeContractABI() {
                 },
                 {
                     "name": "_request",
+                    "type": "uint256"
+                },
+                {
+                    "name": "_round",
                     "type": "uint256"
                 }
             ],
@@ -1756,20 +1778,12 @@ function badgeContractABI() {
                     "type": "uint256"
                 },
                 {
-                    "name": "balance",
-                    "type": "uint256"
-                },
-                {
                     "name": "resolved",
                     "type": "bool"
                 },
                 {
                     "name": "parties",
                     "type": "address[3]"
-                },
-                {
-                    "name": "totalContributed",
-                    "type": "uint256[3]"
                 },
                 {
                     "name": "numberOfRounds",
@@ -1813,6 +1827,14 @@ function badgeContractABI() {
                 {
                     "name": "requiredForSide",
                     "type": "uint256[3]"
+                },
+                {
+                    "name": "totalContributed",
+                    "type": "uint256[3]"
+                },
+                {
+                    "name": "feeRewards",
+                    "type": "uint256"
                 }
             ],
             "payable": false,
@@ -1828,6 +1850,10 @@ function badgeContractABI() {
                 },
                 {
                     "name": "_request",
+                    "type": "uint256"
+                },
+                {
+                    "name": "_round",
                     "type": "uint256"
                 },
                 {
@@ -1926,6 +1952,5 @@ function badgeContractABI() {
             "type": "function"
         }
     ]
-
 }
 
