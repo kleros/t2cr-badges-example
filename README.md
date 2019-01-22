@@ -1,7 +1,7 @@
 # Tokens² Curated List & Badges
 
 This demo demonstrates how to fetch all tokens with badges using only Metamask.
-Please run `yarn` followed by `yarn start`. We must serve the html as Metamask won't interact with `file://`.
+Please run `yarn` followed by `yarn start`. The html must be served as Metamask won't interact with `file://`.
 
 Also make sure you have metamask unlocked on the Kovan network.
 
@@ -24,11 +24,11 @@ const badgeContract = web3.eth.contract(badgeContractABI()).at('0x3122520ba9fcc1
 const tokenData = {}
 ```
 
-Note: Since metamask's web3 js doesn't provide a Promise enabled api, we are must use callbacks and update the tokenData object manually. In production you should use an instance with supported async/await to return all data at once.
+Note: Since metamask's web3 js doesn't provide a Promise enabled api, we are must use callbacks and update the tokenData object manually. In production you should use an instance with supported async/await.
 
 With both instances, we can query the contracts to get token information:
 
-1. Fetch a batch of token addresses that have either the "Registered" or "ClearingRequested" status, as both mean that the token has the batch.
+1. Fetch a batch of token addresses that have either the "Registered" or "ClearingRequested" status, as both mean that the token has the badge.
 
 ```
 function fetchAllBadges() {
@@ -55,7 +55,7 @@ function fetchAllBadges() {
     )
 }
 ```
-2. Fetch all token IDs for that address from the T2CR:
+2. Fetch all token IDs for those addresses from the T2CR:
 
 ```
 function fetchTokenIDs(addresses) {
