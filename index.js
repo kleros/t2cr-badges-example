@@ -3,30 +3,75 @@ const { web3 } = window
 const t2cr = web3.eth.contract(t2crABI()).at('0x7a2e4142f573994f76ffe9d8236ba141beed2810')
 const badgeContract = web3.eth.contract(badgeContractABI()).at('0x1f28f15360c4ebbec6abf90ae57fabe7423d040c')
 
-const tokenData = {}
 
-function fetchAllBadges() {
+async function fetchAllBadges() {
     // Return all token addresses that have the badge.
-    badgeContract.queryAddresses(
-        0,         // A token address to start/end the query from. Set to zero means unused.
-        10,        // Number of items to return at once.
-        [
-            false, // Do not include absent tokens.
-            true,  // Include registered tokens.
-            false, // Do not include tokens with registration requests.
-            true,  // Include tokens with clearing requests.
-            false, // Do not include tokens with challenged registration requests.
-            true,  // Include tokens with challenged clearing requests.
-            false, // Include token if caller is the author of a pending request.
-            false  // Include token if caller is the challenger of a pending request.
-        ],
-        true,      // Return oldest first.
-        (err, data) => {
-            if (err) throw err
-            const addresses = data[0].filter(tokenAddr => tokenAddr != '0x0000000000000000000000000000000000000000')
-            fetchTokenIDs(addresses)
-        }
+    const tokensData = {}
+    const addresses = (await promisify(cb =>
+        badgeContract.queryAddresses(
+            0,         // A token address to start/end the query from. Set to zero means unused.
+            10,        // Number of items to return at once.
+            [
+                false, // Do not include absent tokens.
+                true,  // Include registered tokens.
+                false, // Do not include tokens with registration requests.
+                true,  // Include tokens with clearing requests.
+                false, // Do not include tokens with challenged registration requests.
+                true,  // Include tokens with challenged clearing requests.
+                false, // Include token if caller is the author of a pending request.
+                false  // Include token if caller is the challenger of a pending request.
+            ],
+            true,      // Return oldest first.
+            cb
+        )
+    ))[0]
+        .filter(address => address !== '0x0000000000000000000000000000000000000000')
+
+    addresses.forEach(address => {tokensData[address] = {}})
+
+    const tokenIDPromises = addresses.map(address => promisify(cb =>
+        t2cr.queryTokens(
+            0,         // Whether to start/end the query from/at some token.
+            10,        // Number of items to return at once.
+            [
+                false, // Do not include absent tokens.
+                true,  // Include registered tokens.
+                false, // Do not include tokens with registration requests.
+                true,  // Include tokens with clearing requests.
+                false, // Do not include tokens with challenged registration requests.
+                true,  // Include tokens with challenged clearing requests.
+                false, // Include token if caller is the author of a pending request.
+                false  // Include token if caller is the challenger of a pending request.
+            ],
+            true,      // Return oldest first.
+            address,   // The token address.'
+            cb)
     )
+    )
+
+    const addressIDArr = await Promise.all(tokenIDPromises)
+    const tokenIDs = []
+    addressIDArr.forEach((addrs, index) => {
+        addrs[0].filter(tokenID => tokenID !== '0x0000000000000000000000000000000000000000000000000000000000000000')
+            .forEach(tokenID => {
+                tokensData[Object.keys(tokensData)[index]][tokenID] = {}
+                tokenIDs.push(tokenID)
+            })
+    })
+
+    const tokenInfoPromises = promisify(cb => t2cr.getTokenInfo(tokenID, cb))
+    Object.keys(tokensData).forEach(address => {
+        Object.keys(tokensData[address]).forEach(async tokenID => {
+            const tokenData = await promisify(cb =>
+                t2cr.getTokenInfo(tokenID, cb)
+            )
+            tokensData[address][tokenID] = tokenData
+        })
+    })
+
+    const output = document.getElementById('data-display')
+    output.innerHTML = JSON.stringify(tokensData, undefined, 2)
+    output.style.visibility = 'visible'
 }
 
 function fetchTokenIDs(addresses) {
@@ -71,6 +116,17 @@ function fetchTokenData(tokenID, addr) {
         output.style.visibility = 'visible'
     })
 }
+
+const promisify = (inner) =>
+    new Promise((resolve, reject) =>
+        inner((err, res) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(res);
+            }
+        })
+    )
 
 function t2crABI() {
     return [
