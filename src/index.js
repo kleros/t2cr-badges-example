@@ -6,6 +6,19 @@ import { t2crABI, badgeABI } from "./abis";
 
 import "./styles.css";
 
+const zeroAddress = '0x0000000000000000000000000000000000000000'
+const zeroSubmissionID = '0x0000000000000000000000000000000000000000000000000000000000000000'
+const filter = [
+  false, // Do not include absent tokens.
+  true, // Include registered tokens.
+  false, // Do not include tokens with registration requests.
+  true, // Include tokens with clearing requests.
+  false, // Do not include tokens with challenged registration requests.
+  true, // Include tokens with challenged clearing requests.
+  false, // Include token if caller is the author of a pending request.
+  false // Include token if caller is the challenger of a pending request.
+]
+
 class App extends Component {
   state = {
     web3: null,
@@ -33,25 +46,16 @@ class App extends Component {
     // Get tokens addresses that have the badge.
     let tokensWithBadges = (await badgeContract.methods
       .queryAddresses(
-        "0x0000000000000000000000000000000000000000", // A token address to start/end the query from. Set to zero means unused.
+        zeroAddress, // A token address to start/end the query from. Set to zero means unused.
         10, // Number of items to return at once.
-        [
-          false, // Do not include absent tokens.
-          true, // Include registered tokens.
-          false, // Do not include tokens with registration requests.
-          true, // Include tokens with clearing requests.
-          false, // Do not include tokens with challenged registration requests.
-          true, // Include tokens with challenged clearing requests.
-          false, // Include token if caller is the author of a pending request.
-          false // Include token if caller is the challenger of a pending request.
-        ],
+        filter,
         true // Return oldest first.
       )
       .call()).values;
 
     // Since the contract returns fixed sized arrays, we must filter unused items.
     tokensWithBadges = tokensWithBadges.filter(
-      address => address !== "0x0000000000000000000000000000000000000000"
+      address => address !== zeroAddress
     );
     // Construct and add addresses the response object.
     const tokenData = {};
@@ -64,18 +68,9 @@ class App extends Component {
       tokensWithBadges.map(async address => {
         let tokenIDs = (await t2crContract.methods
           .queryTokens(
-            "0x0000000000000000000000000000000000000000", // A token address to start/end the query from. Set to zero means unused.
+            zeroSubmissionID, // A token ID to start/end the query from. Set to zero means unused.
             10, // Number of items to return at once.
-            [
-              false, // Do not include absent tokens.
-              true, // Include registered tokens.
-              false, // Do not include tokens with registration requests.
-              true, // Include tokens with clearing requests.
-              false, // Do not include tokens with challenged registration requests.
-              true, // Include tokens with challenged clearing requests.
-              false, // Include token if caller is the author of a pending request.
-              false // Include token if caller is the challenger of a pending request.
-            ],
+            filter,
             true,
             address // Return oldest first.
           )
@@ -84,17 +79,13 @@ class App extends Component {
         // As with addresses, the contract returns a fixed sized array so it is necessary to filter out unused slots.
         tokenIDs = tokenIDs.filter(
           tokenID =>
-            tokenID !==
-            "0x0000000000000000000000000000000000000000000000000000000000000000"
+            tokenID !== zeroSubmissionID
         );
         // Add token IDs to the information object.
         tokenIDs.forEach(tokenID => {
           tokenData[address] = {
             ...tokenData[address],
-            [tokenID]: {
-              ...tokenData[address][tokenID],
-              [tokenID]: {}
-            }
+            [tokenID]: null
           };
         });
       })
@@ -117,63 +108,51 @@ class App extends Component {
   };
 
   render() {
-    const { web3, tokenData } = this.state;
-    if (!web3)
-      return (
-        <div>
-          <h1>Waiting Metamask</h1>
-          <small>
-            <h5>
-              Remeber to have metamask installed and set to the Kovan testnet.
-            </h5>
-          </small>
-        </div>
-      );
-    else
-      return (
-        <div className="text-center body">
-          <div id="metamask-loaded">
-            <div className="fetch-tokens">
-              <h1 className="h3 mb-3 font-weight-normal">
-                Fetch Tokens With Badges
-              </h1>
-              <small>Remeber to set metamask network to Kovan</small>
-              <br />
-              <br />
-              <button
-                className="btn btn-primary btn-block"
-                onClick={this.fetchData}
-                type="button"
-              >
-                Fetch All
-              </button>
-              <br />
-            </div>
-            {tokenData && (
-              <div className="output">
-                <pre id="data-display">
-                  {JSON.stringify(tokenData, null, 2)}
-                </pre>
-                <div id="symbols">
-                  {Object.keys(tokenData).map(address => {
-                    return Object.keys(tokenData[address]).map(tokenID => {
-                      const { symbolMultihash } = tokenData[address][tokenID];
-                      return (
-                        <img
-                          key={tokenID}
-                          src={`https://staging-cfs.s3.us-east-2.amazonaws.com/${symbolMultihash}`}
-                          className="img-thumbnail symbol"
-                          alt="symbol"
-                        />
-                      );
-                    });
-                  })}
-                </div>
-              </div>
-            )}
+    const { tokenData } = this.state;
+    return (
+      <div className="text-center body">
+        <div id="metamask-loaded">
+          <div className="fetch-tokens">
+            <h1 className="h3 mb-3 font-weight-normal">
+              Fetch Tokens With Badges
+            </h1>
+            <small>Remeber to set metamask network to Kovan</small>
+            <br />
+            <br />
+            <button
+              className="btn btn-primary btn-block"
+              onClick={this.fetchData}
+              type="button"
+            >
+              Fetch All
+            </button>
+            <br />
           </div>
+          {tokenData && (
+            <div className="output">
+              <pre id="data-display">
+                {JSON.stringify(tokenData, null, 2)}
+              </pre>
+              <div id="symbols">
+                {Object.keys(tokenData).map(address => {
+                  return Object.keys(tokenData[address]).map(tokenID => {
+                    const { symbolMultihash } = tokenData[address][tokenID];
+                    return (
+                      <img
+                        key={tokenID}
+                        src={`https://staging-cfs.s3.us-east-2.amazonaws.com/${symbolMultihash}`}
+                        className="img-thumbnail symbol"
+                        alt="symbol"
+                      />
+                    );
+                  });
+                })}
+              </div>
+            </div>
+          )}
         </div>
-      );
+      </div>
+    );
   }
 }
 
