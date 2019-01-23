@@ -48,7 +48,7 @@ Adding or removing a token from the TCR requires making a request for status cha
 
 ## Badge Contract
 
-The badge contract is a TCR of token addresses. This means that similar to the T²CR contract, adding or removing a badge from a token means sending a request to remove or add a token's address to the registry.
+The badge contract is a TCR of token addresses. This means that, like the T²CR contract, adding or removing a badge from a token means sending a request to remove or add a token's address to the registry.
 
 ## Demo
 
@@ -93,39 +93,19 @@ First, we must get the addresses of tokens that have the badge. To do so, we use
   `hasMore` - bool - Whether there are more items after the last or first returned item.
 ```
 
-#### Example
+#### Demo
 
 ```
-const { t2crContract, badgeContract } = this.state;
-
-let tokensWithBadges = (await badgeContract.methods
+// Fetch addresses of tokens that have the badge.
+// Since the contract returns fixed sized arrays, we must filter out unused items.
+const addressesWithBadge = (await badgeContract.methods
   .queryAddresses(
-    "0x0000000000000000000000000000000000000000", // A token address to start/end the query from. Set to zero means unused.
-    10, // Number of items to return at once.
-    [
-      false, // Do not include absent tokens.
-      true, // Include registered tokens.
-      false, // Do not include tokens with registration requests.
-      true, // Include tokens with clearing requests.
-      false, // Do not include tokens with challenged registration requests.
-      true, // Include tokens with challenged clearing requests.
-      false, // Include token if caller is the author of a pending request.
-      false // Include token if caller is the challenger of a pending request.
-    ],
+    zeroAddress, // A token address to start/end the query from. Set to zero means unused.
+    100, // Number of items to return at once.
+    filter,
     true // Return oldest first.
   )
-  .call()).values;
-
-// Since the contract returns fixed sized arrays, we must filter unused items.
-tokensWithBadges = tokensWithBadges.filter(
-  address => address !== "0x0000000000000000000000000000000000000000"
-);
-
-// Construct and add addresses the response object.
-const tokenData = {};
-tokensWithBadges.forEach(address => {
-  tokenData[address] = {};
-});
+  .call()).values.filter(address => address !== zeroAddress);
 ```
 
 ### 2. Get token IDs
@@ -157,45 +137,23 @@ With the token addresses, we can query the token² curated list contract to get 
 #### Example:
 
 ```
-// Fetch all token IDs for each address.
-await Promise.all(
-  tokensWithBadges.map(async address => {
-    let tokenIDs = (await t2crContract.methods
-      .queryTokens(
-        "0x0000000000000000000000000000000000000000", // A token address to start/end the query from. Set to zero means unused.
-        10, // Number of items to return at once.
-        [
-          false, // Do not include absent tokens.
-          true, // Include registered tokens.
-          false, // Do not include tokens with registration requests.
-          true, // Include tokens with clearing requests.
-          false, // Do not include tokens with challenged registration requests.
-          true, // Include tokens with challenged clearing requests.
-          false, // Include token if caller is the author of a pending request.
-          false // Include token if caller is the challenger of a pending request.
-        ],
-        true,
-        address // Return oldest first.
-      )
-      .call()).values;
-
-    // As with addresses, the contract returns a fixed sized array so it is necessary to filter out unused slots.
-    tokenIDs = tokenIDs.filter(
-      tokenID =>
-        tokenID !==
-        "0x0000000000000000000000000000000000000000000000000000000000000000"
-    );
-    // Add token IDs to the information object.
-    tokenIDs.forEach(tokenID => {
-      tokenData[address] = {
-        ...tokenData[address],
-        [tokenID]: {
-          ...tokenData[address][tokenID],
-          [tokenID]: {}
-        }
-      };
-    });
-  })
+// Fetch the token submission IDs on the T2CR using the token addresses.
+// As with addresses, the contract returns a fixed sized array so we filter out unused slots.
+const submissionIDs = [].concat(
+  ...(await Promise.all(
+    addressesWithBadge.map(address =>
+      t2crContract.methods
+        .queryTokens(
+          zeroSubmissionID, // A token ID from which to start/end the query from. Set to zero means unused.
+          100, // Number of items to return at once.
+          filter,
+          true, // Return oldest first.
+          address // The token address for which to return the submissions.
+        )
+        .call()
+        .then(res => res.values.filter(ID => ID !== zeroSubmissionID))
+    )
+  ))
 );
 ```
 
@@ -223,16 +181,11 @@ With the token IDs, we can get token information from the t²cr contract with th
 
 ```
 // With the token IDs, get the information and add it to the object.
-await Promise.all(
-  Object.keys(tokenData).map(
-    async address =>
-      await Promise.all(
-        Object.keys(tokenData[address]).map(async tokenID => {
-          tokenData[address][
-            tokenID
-          ] = await t2crContract.methods.getTokenInfo(tokenID).call();
-        })
-      )
-  )
-);
+const tokenData = (await Promise.all(
+  submissionIDs.map(ID => t2crContract.methods.getTokenInfo(ID).call())
+)).reduce((acc, submission) => {
+  if (acc[submission.addr]) acc[submission.addr].push(submission);
+  else acc[submission.addr] = [submission];
+  return acc;
+}, {});
 ```
