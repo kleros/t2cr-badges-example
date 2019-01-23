@@ -10,13 +10,13 @@ A decription of the architecure and rationale is provided below.
 
 The T2CR contract contains all token submissions. A token submission contains the token's data along with additional information:
 
-- Name // The token's name (e.g. Pinakion).
-- Ticker // The token's ticker (e.g. PNK).
-- Address // The token's address.
-- Symbol Multihash // The multihash of the image with the token symbol, using the keccak-256 hash function.
-- Network ID // The ID of the network where the token is deployed on.
-- Status // The status of the token on the TCR. A status can be Absent, Registered, Registration Requested and Clearing Requested. A submission with the status of Registered or Clearing Requested are considered to be present on the TCR.
-- Number of Requests // The number of requests ever made for changing the status of the submission.
+- Name - The token's name (e.g. Pinakion).
+- Ticker - The token's ticker (e.g. PNK).
+- Address - The token's address.
+- Symbol Multihash - The multihash of the image with the token symbol, using the keccak-256 hash function.
+- Network ID - The ID of the network where the token is deployed on.
+- Status - The status of the token on the TCR. A status can be Absent, Registered, Registration Requested and Clearing Requested. A submission with the status of Registered or Clearing Requested are considered to be present on the TCR.
+- Number of Requests - The number of requests ever made for changing the status of the submission.
 
 ### Symbol Multihash
 
@@ -26,11 +26,11 @@ Each submission is identified by an ID, which is the keccak-256 hash of the toke
 
 ```
 const ID = web3.utils.soliditySha3(
-    'Pinakion',
-    'PNK',
-    '0x93ED3FBe21207Ec2E8f2d3c3de6e058Cb73Bc04d',
-    '0x9638d9a8ac3eceb75dac165d34448d13fbb7b079a22aabe70309b23616ef35cc',
-    'ETH'
+  'Pinakion',
+  'PNK',
+  '0x93ED3FBe21207Ec2E8f2d3c3de6e058Cb73Bc04d',
+  '0x9638d9a8ac3eceb75dac165d34448d13fbb7b079a22aabe70309b23616ef35cc',
+  'ETH'
 )
 ```
 
@@ -83,9 +83,11 @@ First, we must get the addresses of tokens that have the badge. To do so, we use
 4. `_oldestFirst` - bool - Whether to return the oldest submissions first.
 
 #### queryAddresses() Return
+```
 `Object`:
-    `values`: - Array - The addresses of tokens that have the badge.
-    `hasMore` - bool - Whether there are more items after the last or first returned item.
+  `values`: - Array - The addresses of tokens that have the badge.
+  `hasMore` - bool - Whether there are more items after the last or first returned item.
+```
 
 #### Example
 
@@ -142,9 +144,11 @@ With the token addresses, we can query the token² curated list contract to get 
 5. `_address` - The address of the token for which to query token IDs. If set to `0x0000000000000000000000000000000000000000000000000000000000000000`, queries the whole token² curated list.
 
 #### queryTokens() Return
+```
 `Object`:
-    `values`: - Array - The token IDs of token submissions.
-    `hasMore` - bool - Whether there are more items after the last or first returned item.
+  `values`: - Array - The token IDs of token submissions.
+  `hasMore` - bool - Whether there are more items after the last or first returned item.
+```
 
 #### Example:
 
@@ -191,7 +195,7 @@ await Promise.all(
 );
 ```
 
-### 3. Get token data.
+### 3. Get token data
 
 With the token IDs, we can get token information from the t²cr contract with the `getTokenInfo` method.
 
@@ -200,6 +204,7 @@ With the token IDs, we can get token information from the t²cr contract with th
 1. `_tokenID` - string/tokenID - This is the token ID for which the data will be fetched.
 
 #### getTokenInfo () Returns
+```
 `Object`:
   name - string - The token's name (e.g. Pinakion).
   ticker - string - The token's ticker (e.g. PNK).
@@ -208,6 +213,7 @@ With the token IDs, we can get token information from the t²cr contract with th
   networkID - string - The ID of the network where the token is deployed on.
   status - string - The status of the token on the TCR. A status can be Absent, Registered, Registration Requested and ClearingRequested. A submission with the status of Registered or Clearing Requested are considered to be present on the TCR.
   numberOfRequests - string - The number of requests ever made for changing the status of the submission.
+```
 
 #### Example
 
