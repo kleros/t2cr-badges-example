@@ -55,7 +55,7 @@ class App extends Component {
       )
       .call()).values.filter(address => address !== zeroAddress);
 
-    // Fetch their submission IDs on the T2CR.
+    // Fetch the token submission IDs on the T2CR using the token addresses.
     // As with addresses, the contract returns a fixed sized array so we filter out unused slots.
     const submissionIDs = [].concat(
       ...(await Promise.all(
