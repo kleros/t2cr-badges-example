@@ -6,8 +6,9 @@ import { t2crABI, badgeABI } from "./abis";
 
 import "./styles.css";
 
-const zeroAddress = '0x0000000000000000000000000000000000000000'
-const zeroSubmissionID = '0x0000000000000000000000000000000000000000000000000000000000000000'
+const zeroAddress = "0x0000000000000000000000000000000000000000";
+const zeroSubmissionID =
+  "0x0000000000000000000000000000000000000000000000000000000000000000";
 const filter = [
   false, // Do not include tokens which are not on the TCR.
   true, // Include registered tokens.
@@ -17,7 +18,7 @@ const filter = [
   true, // Include tokens with challenged clearing requests.
   false, // Include token if caller is the author of a pending request.
   false // Include token if caller is the challenger of a pending request.
-]
+];
 
 class App extends Component {
   state = {
@@ -45,37 +46,42 @@ class App extends Component {
 
     // Fetch addresses of tokens that have the badge.
     // Since the contract returns fixed sized arrays, we must filter out unused items.
-    const addressesWithBadge = (
-      await badgeContract.methods.queryAddresses(
+    const addressesWithBadge = (await badgeContract.methods
+      .queryAddresses(
         zeroAddress, // A token address to start/end the query from. Set to zero means unused.
         100, // Number of items to return at once.
         filter,
         true // Return oldest first.
-      ).call()
-    ).values.filter(address => address !== zeroAddress)
+      )
+      .call()).values.filter(address => address !== zeroAddress);
 
     // Fetch their submission IDs on the T2CR.
     // As with addresses, the contract returns a fixed sized array so we filter out unused slots.
-    const submissionIDs = [].concat(...(await Promise.all(addressesWithBadge.map(address =>
-      addressesWithBadge.methods.queryTokens(
-        zeroSubmissionID, // A token ID from which to start/end the query from. Set to zero means unused.
-        100, // Number of items to return at once.
-        filter,
-        true, // Return oldest first.
-        address // The token address for which to return the submissions.
-      ).call().then(res => res.values.filter(ID => ID !== zeroSubmissionID)))))
-    )
+    const submissionIDs = [].concat(
+      ...(await Promise.all(
+        addressesWithBadge.map(address =>
+          t2crContract.methods
+            .queryTokens(
+              zeroSubmissionID, // A token ID from which to start/end the query from. Set to zero means unused.
+              100, // Number of items to return at once.
+              filter,
+              true, // Return oldest first.
+              address // The token address for which to return the submissions.
+            )
+            .call()
+            .then(res => res.values.filter(ID => ID !== zeroSubmissionID))
+        )
+      ))
+    );
 
     // With the token IDs, get the information and add it to the object.
-    const tokenData = (await Promise.all(submissionIDs.map(ID =>
-      addressesWithBadge.methods.getTokenInfo(ID).call()
-    ))).reduce((acc, submission) => {
-      if (acc[submission.addr]) acc[submission.addr].push(submission)
-      else acc[submission.addr] = [submission]
-      return acc
-    },
-      {}
-    )
+    const tokenData = (await Promise.all(
+      submissionIDs.map(ID => t2crContract.methods.getTokenInfo(ID).call())
+    )).reduce((acc, submission) => {
+      if (acc[submission.addr]) acc[submission.addr].push(submission);
+      else acc[submission.addr] = [submission];
+      return acc;
+    }, {});
     this.setState({ tokenData });
   };
 
@@ -102,9 +108,7 @@ class App extends Component {
           </div>
           {tokenData && (
             <div className="output">
-              <pre id="data-display">
-                {JSON.stringify(tokenData, null, 2)}
-              </pre>
+              <pre id="data-display">{JSON.stringify(tokenData, null, 2)}</pre>
               <div id="symbols">
                 {Object.keys(tokenData).map(address => {
                   return Object.keys(tokenData[address]).map(tokenID => {
