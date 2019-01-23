@@ -1,14 +1,13 @@
-
 [build]
-  publish = "/"
-
+  publish = "build/"
+  command = "yarn build"
+  
   # Develop Branch Deploy context: All deploys that are not in
   # an active Deploy Preview will inherit these settings.
 [context.develop]
   [context.develop.environment]
   NODE_VERSION='9.10.0'
   YARN_FLAGS='--pure-lockfile'
-  
 # Production context: All deploys to the main
 # repository branch will inherit these settings.
 [context.production]
