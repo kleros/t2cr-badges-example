@@ -4,6 +4,8 @@ Demo: https://codesandbox.io/s/zl98y8ojm4
 
 A decription of the architecure and rationale is provided below.
 
+![architecture](./contracts.png)
+
 ## T²CR Contract
 
 The T2CR contract contains all token submissions. A token submission contains the token's data along with additional information:
