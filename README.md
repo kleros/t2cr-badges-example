@@ -18,25 +18,29 @@ The T2CR contract contains all token submissions. A token submission contains th
 - Status - The status of the token on the TCR. A status can be Absent, Registered, Registration Requested and Clearing Requested. A submission with the status of Registered or Clearing Requested are considered to be present on the TCR.
 - Number of Requests - The number of requests ever made for changing the status of the submission.
 
-### Symbol Multihash
+#### Symbol Multihash
+
+The symbol multihash uniquely identifies the token symbol image. It can be used to verify and/or fetch the symbol stored off chain:
+
+`https://staging-cfs.s3.us-east-2.amazonaws.com/BcczM5HCLj24wSWU6tDUpnVrbrxJNj7dwdjnUkaRpLXDFztUMjuMRfESGgYfW5guE3yXYAP71awL39LmSixrSMYgig`
+
 
 > **Tip**: You can use the [archon](https://archon.readthedocs.io/en/latest/hashing.html) library provided by Kleros to calculate multihashes: `const fileMultihash = archon.utils.multihashFile(fileData, 0x1b) // 0x1b is the keccak-256`
 
-Each submission is identified by an ID, which is the keccak-256 hash of the token's [tighly packed](https://solidity.readthedocs.io/en/develop/abi-spec.html#non-standard-packed-mode) data. It can be computed as with web3js 1.0 [`soliditySha3()`](https://web3js.readthedocs.io/en/1.0/web3-utils.html?highlight=soliditySha3#soliditysha3) as follows:
+
+#### Token ID
+
+Each submission is identified by an ID, which is the keccak-256 hash of the token's [tighly packed](https://solidity.readthedocs.io/en/develop/abi-spec.html#non-standard-packed-mode) data. It can be computed with web3js 1.0 [`soliditySha3()`](https://web3js.readthedocs.io/en/1.0/web3-utils.html?highlight=soliditySha3#soliditysha3) as follows:
 
 ```
 const ID = web3.utils.soliditySha3(
   'Pinakion',
   'PNK',
   '0x93ED3FBe21207Ec2E8f2d3c3de6e058Cb73Bc04d',
-  '0x9638d9a8ac3eceb75dac165d34448d13fbb7b079a22aabe70309b23616ef35cc',
+  'Bcd5wH5qLUockaKGA4qAV5i7MrsboyEcfx1fKpb3e2V2SApNdXbpDyUEAmsdqfv8VJvyNrhkY3VpSckkrBUoms5PDg',
   'ETH'
 )
 ```
-
-With it, the token symbol could be fetched from an off-chain storage:
-
-`https://staging-cfs.s3.us-east-2.amazonaws.com/BcczM5HCLj24wSWU6tDUpnVrbrxJNj7dwdjnUkaRpLXDFztUMjuMRfESGgYfW5guE3yXYAP71awL39LmSixrSMYgig`
 
 ### Requests
 
