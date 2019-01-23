@@ -9,10 +9,10 @@ import "./styles.css";
 const zeroAddress = '0x0000000000000000000000000000000000000000'
 const zeroSubmissionID = '0x0000000000000000000000000000000000000000000000000000000000000000'
 const filter = [
-  false, // Do not include absent tokens.
+  false, // Do not include tokens which are not on the TCR.
   true, // Include registered tokens.
-  false, // Do not include tokens with registration requests.
-  true, // Include tokens with clearing requests.
+  false, // Do not include tokens with pending registration requests.
+  true, // Include tokens with pending clearing requests.
   false, // Do not include tokens with challenged registration requests.
   true, // Include tokens with challenged clearing requests.
   false, // Include token if caller is the author of a pending request.
@@ -43,67 +43,39 @@ class App extends Component {
   fetchData = async () => {
     const { t2crContract, badgeContract } = this.state;
 
-    // Get tokens addresses that have the badge.
-    let tokensWithBadges = (await badgeContract.methods
-      .queryAddresses(
+    // Fetch addresses of tokens that have the badge.
+    // Since the contract returns fixed sized arrays, we must filter out unused items.
+    const addressesWithBadge = (
+      await badgeContract.methods.queryAddresses(
         zeroAddress, // A token address to start/end the query from. Set to zero means unused.
-        10, // Number of items to return at once.
+        100, // Number of items to return at once.
         filter,
         true // Return oldest first.
-      )
-      .call()).values;
+      ).call()
+    ).values.filter(address => address !== zeroAddress)
 
-    // Since the contract returns fixed sized arrays, we must filter unused items.
-    tokensWithBadges = tokensWithBadges.filter(
-      address => address !== zeroAddress
-    );
-    // Construct and add addresses the response object.
-    const tokenData = {};
-    tokensWithBadges.forEach(address => {
-      tokenData[address] = {};
-    });
-
-    // Fetch all token IDs for each address.
-    await Promise.all(
-      tokensWithBadges.map(async address => {
-        let tokenIDs = (await t2crContract.methods
-          .queryTokens(
-            zeroSubmissionID, // A token ID to start/end the query from. Set to zero means unused.
-            10, // Number of items to return at once.
-            filter,
-            true,
-            address // Return oldest first.
-          )
-          .call()).values;
-
-        // As with addresses, the contract returns a fixed sized array so it is necessary to filter out unused slots.
-        tokenIDs = tokenIDs.filter(
-          tokenID =>
-            tokenID !== zeroSubmissionID
-        );
-        // Add token IDs to the information object.
-        tokenIDs.forEach(tokenID => {
-          tokenData[address] = {
-            ...tokenData[address],
-            [tokenID]: null
-          };
-        });
-      })
-    );
+    // Fetch their submission IDs on the T2CR.
+    // As with addresses, the contract returns a fixed sized array so we filter out unused slots.
+    const submissionIDs = [].concat(...(await Promise.all(addressesWithBadge.map(address =>
+      addressesWithBadge.methods.queryTokens(
+        zeroSubmissionID, // A token ID from which to start/end the query from. Set to zero means unused.
+        100, // Number of items to return at once.
+        filter,
+        true, // Return oldest first.
+        address // The token address for which to return the submissions.
+      ).call().then(res => res.values.filter(ID => ID !== zeroSubmissionID)))))
+    )
 
     // With the token IDs, get the information and add it to the object.
-    await Promise.all(
-      Object.keys(tokenData).map(
-        async address =>
-          await Promise.all(
-            Object.keys(tokenData[address]).map(async tokenID => {
-              tokenData[address][
-                tokenID
-              ] = await t2crContract.methods.getTokenInfo(tokenID).call();
-            })
-          )
-      )
-    );
+    const tokenData = (await Promise.all(submissionIDs.map(ID =>
+      addressesWithBadge.methods.getTokenInfo(ID).call()
+    ))).reduce((acc, submission) => {
+      if (acc[submission.addr]) acc[submission.addr].push(submission)
+      else acc[submission.addr] = [submission]
+      return acc
+    },
+      {}
+    )
     this.setState({ tokenData });
   };
 
