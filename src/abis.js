@@ -1672,6 +1672,29 @@ export const badgeABI = [
       {
         name: "_address",
         type: "address"
+      }
+    ],
+    name: "getAddressInfo",
+    outputs: [
+      {
+        name: "status",
+        type: "uint8"
+      },
+      {
+        name: "numberOfRequests",
+        type: "uint256"
+      }
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [
+      {
+        name: "_address",
+        type: "address"
       },
       {
         name: "_request",

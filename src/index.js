@@ -36,7 +36,7 @@ class App extends Component {
     );
     const badgeContract = new web3.eth.Contract(
       badgeABI,
-      "0x1f28f15360c4ebbec6abf90ae57fabe7423d040c"
+      "0xa355533d027578434ea017d3f543dbc7be8a0a8f"
     );
     this.setState({ web3, t2crContract, badgeContract });
   }
