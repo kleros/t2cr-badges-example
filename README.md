@@ -75,22 +75,14 @@ First, we must get the addresses of tokens that have the badge. To do so, we use
 #### queryAddresses() Parameters
 1. `_cursor` - string/ethereum address - This is the address from which to start or end our query. Passing the `0x0000000000000000000000000000000000000000` address means the query will start from either the end or the start of the list, depending on the `oldestFirst` parameter.
 2. `_count` - number - This is the number of items that will be returned. Since the contract always returns fixed numbers, any unused slots will be returned as with the `0x0000000000000000000000000000000000000000` address.
-3. `_filter` - Array - Array of bool to use as filter to use to query the tokens. Each position meaning is described below:
-  - 0. Do not include absent tokens.
-  - 1. Include registered tokens.
-  - 2. Do not include tokens with registration requests.
-  - 3. Include tokens with clearing requests.
-  - 4. Do not include tokens with challenged registration requests.
-  - 5. Include tokens with challenged clearing requests.
-  - 6. Include token if caller is the author of a pending request.
-  - 7. Include token if caller is the challenger of a pending request.
-4. `_oldestFirst` - bool - Whether to return the oldest submissions first.
+3. `_filter` - Array - Boolean array to use as filter when quering the tokens.
+4. `_oldestFirst` - bool - The sort order of the returned values.
 
 #### queryAddresses() Return
 ```
 `Object`:
   `values`: - Array - The addresses of tokens that have the badge.
-  `hasMore` - bool - Whether there are more items after the last or first returned item.
+  `hasMore` - bool - Whether there are more items after or before the last returned item.
 ```
 
 #### Demo
@@ -113,25 +105,17 @@ const addressesWithBadge = (await badgeContract.methods
 With the token addresses, we can query the token² curated list contract to get token id submissions currently on the list. To do that, we use the `queryTokens` method.
 
 #### queryTokens() Parameters
-1. `_cursor` - string/tokenID - This is the token ID from which to start or end our query. Passing the `0x0000000000000000000000000000000000000000000000000000000000000000` ID means the query will start from either the end or the start of the list, depending on the `oldestFirst` parameter.
-2. `_count` - number - This is the number of items that will be returned. Since the contract always returns fixed numbers, any unused slots will be returned as with the `0x0000000000000000000000000000000000000000000000000000000000000000` address.
-3. `_filter` - Array - Array of bool to use as filter to use to query the tokens. Each position meaning is described below:
-  - 0. Do not include absent tokens.
-  - 1. Include registered tokens.
-  - 2. Do not include tokens with registration requests.
-  - 3. Include tokens with clearing requests.
-  - 4. Do not include tokens with challenged registration requests.
-  - 5. Include tokens with challenged clearing requests.
-  - 6. Include token if caller is the author of a pending request.
-  - 7. Include token if caller is the challenger of a pending request.
-4. `_oldestFirst` - bool - Whether to return the oldest submissions first.
+1. `_cursor` - string/tokenID - This is the token ID from which to start or end our query. Passing the empty ID (`0x0000000000000000000000000000000000000000000000000000000000000000`) ID means the query will start from either the end or the start of the list, depending on the `oldestFirst` parameter.
+2. `_count` - number - This is the number of items that will be returned. Since the contract returns fixed numbers, any unused slots will be returned as with the empty (`0x0000000000000000000000000000000000000000000000000000000000000000`) ID.
+3. `_filter` - Array - Boolean array to use as filter when quering the tokens.
+4. `_oldestFirst` - bool - The sort order of the returned values.
 5. `_address` - The address of the token for which to query token IDs. If set to `0x0000000000000000000000000000000000000000000000000000000000000000`, queries the whole token² curated list.
 
 #### queryTokens() Return
 ```
 `Object`:
   `values`: - Array - The token IDs of token submissions.
-  `hasMore` - bool - Whether there are more items after the last or first returned item.
+  `hasMore` - bool - Whether there are more items after or before the last returned item.
 ```
 
 #### Example:
