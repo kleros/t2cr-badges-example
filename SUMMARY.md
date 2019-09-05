@@ -1,4 +1,5 @@
 # Table of contents
 
-* [Initial page](README.md)
+* [Token² Curated Registry](README.md)
+* [Deep Dive](untitled.md)
 
