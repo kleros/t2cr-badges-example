@@ -5,4 +5,4 @@ nav:
     - 'Quick Start': 'index.md'
     - 'Deep Dive': 'deep-dive.md'
 - About:
-    - 'License': 'LICENSE'
+    - 'License': 'LICENSE.md'
