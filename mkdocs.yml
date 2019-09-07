@@ -1,0 +1,8 @@
+site_name: Token² Curated List
+theme: readthedocs
+nav:
+- User Guide:
+    - 'Quick Start': 'index.md'
+    - 'Deep Dive': 'deep-dive.md'
+- About:
+    - 'License': 'LICENSE'

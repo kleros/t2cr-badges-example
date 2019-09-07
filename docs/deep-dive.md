@@ -1,16 +1,10 @@
----
-description: Understand how the protocol works learn about the contract functions.
----
-
-# Deep Dive
-
 ## Introduction
 
 The Token² Curated Registry \(or sometimes refered to as the T²CR\) is a Kleros powered token curated registry of tokens.
 
 Additionally, badges can also be attached to tokens that meet some criteria \(e.g. ERC20 Badge certifies that the token contract implements the ERC20 token standard and passed a bug bounty\).
 
-![](.gitbook/assets/contracts.png)
+![architecture](assets/contracts.png)
 
 ## Resources
 
@@ -38,13 +32,14 @@ This is the IPFS identifier of the token symbol image, used to verify and/or fet
 // Pinakion (PNK) IPFS URI
 /ipfs/QmUEdcZHCPwtogM9DhxU4jTbJqTDRdpxjYRazgogLjQwcR/BccyC34GA7AwHVvDTn5qNFTn4WyTkcuMvhBkwryERLvsaTTso3sPyXbrETstLTZFihsYqFBrZ3KpK8NYxTejS6muzk
 
-// Fetching via 
+// Fetching via
 https://ipfs.kleros.io/ipfs/QmUEdcZHCPwtogM9DhxU4jTbJqTDRdpxjYRazgogLjQwcR/BccyC34GA7AwHVvDTn5qNFTn4WyTkcuMvhBkwryERLvsaTTso3sPyXbrETstLTZFihsYqFBrZ3KpK8NYxTejS6muzk
 ```
 
-{% hint style="info" %}
-You can use the [archon](https://archon.readthedocs.io/en/latest/hashing.html) library provided by Kleros to calculate multihashes: `const fileMultihash = archon.utils.multihashFile(fileData, 0x1b) // 0x1b is the keccak-256`
-{% endhint %}
+> You can use the [archon](https://archon.readthedocs.io/en/latest/hashing.html) library provided by Kleros to calculate multihashes:
+```
+const fileMultihash = archon.utils.multihashFile(fileData, 0x1b) // 0x1b is the keccak-256
+```
 
 #### Token ID
 
@@ -165,13 +160,8 @@ const submissionIDs = [].concat(
 
 With the token IDs, we can get token information from the t²cr contract with the `getTokenInfo` method.
 
-{% hint style="info" %}
-The function below returns information for a single token. If you need to return information on a lot of tokens, you should batch the request using a view contract.
+> The function below returns information for a single token. If you need to return information on a lot of tokens, you should batch the request using a view contract. See [this example](https://codesandbox.io/s/t2cr-and-badges-nyqi6) learn how we do this.
 
-See the example below learn how we do this:
-
-[![Edit T2CR and Badges](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/t2cr-and-badges-nyqi6?fontsize=14)
-{% endhint %}
 
 #### getTokenInfo\(\) Parameters
 
@@ -201,4 +191,3 @@ const tokenData = (await Promise.all(
   return acc;
 }, {});
 ```
-
