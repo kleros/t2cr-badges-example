@@ -1,10 +1,14 @@
+## Quick Start
+
+Do you just want the list of tokens? Here you go: [https://t2crtokens.eth.link](https://t2crtokens.eth.link).
+
+The one caveat is the following: This list follows the Uniswap's token lists schema where the decimals field is obligatory. Tokens that revert when the `decimals()` function of its contract is called will not be included in this list unless there is an accepted submission for it in the [Token Decimals TCR](https://curate.kleros.io/tcr/0x8eFfF9BB64ED3d766a26a18e873cf171E67BeCf2).
+
 ## Introduction
 
 The Token² Curated Registry \(or sometimes refered to as the T²CR\) is a Kleros powered token curated registry of tokens.
 
-Additionally, badges can also be attached to tokens that meet some criteria \(e.g. ERC20 Badge certifies that the token contract implements the ERC20 token standard and passed a bug bounty\).
-
-![architecture](assets/contracts.png)
+Additionally, badges can also be attached to tokens that meet some criteria \(e.g. ERC20 Badge certifies that the token contract implements the ERC20 token standard and passed a bug bounty\). Badges are essentially an Arbitrable TCR contract with only an address field.
 
 ## Resources
 
